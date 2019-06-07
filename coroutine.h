@@ -42,9 +42,9 @@ public:
 	void func();
 
 private:
-	CoroutineFunc func_;     //执行函数
-	ucontext_t ctx_;         //中断时保存的上下文
-	char *stack_;            //栈
+	CoroutineFunc func_;     
+	ucontext_t ctx_;         
+	char *stack_;          
 };
 
 
@@ -54,10 +54,10 @@ public:
 
 	Schedule();
 
-    static Schedule& getInstance();
+        static Schedule& getInstance();
 
-    int createCoroutine(CoroutineFunc func);
-    void resumeCoroutine(int id);
+        int createCoroutine(CoroutineFunc func);
+        void resumeCoroutine(int id);
 	void yieldCoroutine();
 	int getIdCoroutine();
 
@@ -75,20 +75,20 @@ private:
 
 	std::unordered_map<int, Coroutine*> cos_;
 
-    //if coroutine not in dead or ready, it is suspend 
+        //if coroutine not in dead or ready, it is suspend 
 	std::queue<int> dead_ids_;                
-    std::unordered_set<int> ready_ids_;      
+        std::unordered_set<int> ready_ids_;      
 
 };
 
 template<typename T>
 class Channel{
 public:
-    void push(T data);
-    T pop();
+        void push(T data);
+        T pop();
 private:
-    std::queue<T> data_;
-    std::queue<int> wait_ids_;
+        std::queue<T> data_;
+        std::queue<int> wait_ids_;
 };
 
 static void proxyFunc(){
@@ -103,7 +103,7 @@ Coroutine::Coroutine(CoroutineFunc func)
 	:func_(func),
 	 stack_(nullptr)
 {
-    stack_ = (char*)malloc(STACK_SIZE);
+        stack_ = (char*)malloc(STACK_SIZE);
 	Schedule& schedule = Schedule::getInstance();
 	getcontext(&ctx_); 
 	ctx_.uc_stack.ss_sp = stack_; 
@@ -127,8 +127,8 @@ Schedule::Schedule()
 {}
 
 Schedule& Schedule::getInstance(){
-    static Schedule instance;
-    return instance;
+        static Schedule instance;
+        return instance;
 }
 
 int Schedule::createCoroutine(CoroutineFunc func){
@@ -136,8 +136,8 @@ int Schedule::createCoroutine(CoroutineFunc func){
 	if(dead_ids_.size() != 0){
 		id = dead_ids_.front();
 		dead_ids_.pop();
-        delete cos_[id];
-        cos_.erase(id);
+                delete cos_[id];
+                cos_.erase(id);
 	} else{
 		id = ++max_id_;
 	}
@@ -145,7 +145,7 @@ int Schedule::createCoroutine(CoroutineFunc func){
 	cos_[id] = new Coroutine(func);
 	ready_ids_.insert(id);
 
-    return id;
+        return id;
 }
 
 void Schedule::resumeCoroutine(int id){
@@ -156,7 +156,7 @@ void Schedule::resumeCoroutine(int id){
 	assert(id == 0 || cos_.find(id) != cos_.end());
 
 	int last_id = cur_id_;
-    cur_id_ = id;
+        cur_id_ = id;
 
 	if(last_id == 0){
 		Coroutine* co = cos_[id];
@@ -198,9 +198,9 @@ void Schedule::deleteCoroutine(){
 }
 
 void Schedule::suspendCoroutine(){
-    int id = getNextId();
+        int id = getNextId();
 	ready_ids_.erase(cur_id_);
-    resumeCoroutine(id);
+        resumeCoroutine(id);
 }
 
 
@@ -250,13 +250,13 @@ T Channel<T>::pop(){
 
 
 int createCoroutine(CoroutineFunc func){ 
-    Schedule& schedule = Schedule::getInstance();
+        Schedule& schedule = Schedule::getInstance();
 	return schedule.createCoroutine(func);
 }       
 
 
 void resumeCoroutine(int id){
-    Schedule& schedule = Schedule::getInstance();
+        Schedule& schedule = Schedule::getInstance();
 	schedule.resumeCoroutine(id);
 }
 
