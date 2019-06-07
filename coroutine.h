@@ -273,12 +273,12 @@ int getIdCoroutine(){
 
 template<typename T>
 Channel<T>* createChannel(){
-    return new Channel<T>();
+        return new Channel<T>();
 }
 
 template<typename T>
 void deleteChannel(Channel<T>* c){
-    delete c;
+        delete c;
 }
 
 }
